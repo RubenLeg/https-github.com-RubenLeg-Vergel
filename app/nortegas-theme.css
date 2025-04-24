@@ -55,11 +55,11 @@
 .nortegas-card-header {
   background-color: var(--nortegas-dark-blue);
   color: var(--nortegas-white);
-  padding: 1rem;
+  padding: 0.5rem 1rem;
 }
 
 .nortegas-card-content {
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: var(--nortegas-white);
 }
 
@@ -71,4 +71,3 @@
   font-family: monospace;
   font-size: 0.85rem;
 }
-

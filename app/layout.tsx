@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Pruebas WhatsApp en MRQ",
   description: "Aplicación para consultar datos de clientes y contratos",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -24,6 +24,4 @@ export default function RootLayout({
   )
 }
 
-
-
-import './globals.css'
+import "./globals.css"

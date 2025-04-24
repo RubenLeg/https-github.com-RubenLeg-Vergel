@@ -117,4 +117,3 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
     </Card>
   )
 }
-

@@ -7,7 +7,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-nortegas-gray">
       <NortegasHeader />
 
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-4">
         <div className="w-full max-w-7xl mx-auto">
           <div className="bg-white p-6 rounded-lg shadow-md border border-nortegas-blue-light/20">
             <CustomerData />
@@ -51,4 +51,3 @@ export default function Home() {
     </div>
   )
 }
-

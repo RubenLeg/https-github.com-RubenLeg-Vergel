@@ -681,14 +681,14 @@ export default function CustomerData() {
     const phones = Array.isArray(value.phone) ? value.phone : []
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#003a4d]">{name}</h3>
-          <span className="px-2 py-1 bg-[#00a0df]/10 text-[#00a0df] text-xs font-medium rounded-full">Cliente</span>
+          <h3 className="text-base font-semibold text-[#003a4d]">{name}</h3>
+          <span className="px-2 py-0.5 bg-[#00a0df]/10 text-[#00a0df] text-xs font-medium rounded-full">Cliente</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-2">
             <div>
               <p className="text-xs text-gray-500">Identificador (IC)</p>
               <p className="font-medium">{ic}</p>
@@ -698,22 +698,9 @@ export default function CustomerData() {
               <p className="text-xs text-gray-500">CIF/NIF</p>
               <p className="font-medium">{nif}</p>
             </div>
-
-            <div>
-              <p className="text-xs text-gray-500">Factura electrónica</p>
-              <div className="flex items-center mt-1">
-                <div
-                  className={`w-2 h-2 rounded-full mr-2 ${hasElectronicInvoice ? "bg-green-500" : "bg-red-500"}`}
-                ></div>
-                <p className="text-sm">{hasElectronicInvoice ? "Activada" : "No activada"}</p>
-              </div>
-              {hasElectronicInvoice && value.emailFe && (
-                <p className="text-xs text-gray-500 mt-1">Email: {value.emailFe}</p>
-              )}
-            </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
               <p className="text-xs text-gray-500">Teléfono móvil</p>
               <p className="font-medium">{mobile}</p>
@@ -726,7 +713,7 @@ export default function CustomerData() {
                   <p className="font-medium">{phones[0]}</p>
                 ) : (
                   <Select>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full h-8 text-sm">
                       <SelectValue placeholder="Ver teléfonos" />
                     </SelectTrigger>
                     <SelectContent>
@@ -740,18 +727,31 @@ export default function CustomerData() {
                 )}
               </div>
             )}
+          </div>
 
+          <div className="space-y-2">
             <div>
               <p className="text-xs text-gray-500">Email de contacto</p>
               <p className="font-medium">{email}</p>
             </div>
+
+            <div>
+              <p className="text-xs text-gray-500">Factura electrónica</p>
+              <div className="flex items-center">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${hasElectronicInvoice ? "bg-green-500" : "bg-red-500"}`}
+                ></div>
+                <p className="text-sm">{hasElectronicInvoice ? "Activada" : "No activada"}</p>
+              </div>
+              {hasElectronicInvoice && value.emailFe && <p className="text-xs text-gray-500">Email: {value.emailFe}</p>}
+            </div>
           </div>
         </div>
 
-        <div className="pt-3 border-t border-gray-200">
+        <div className="pt-2 border-t border-gray-200">
           <details className="text-xs">
             <summary className="cursor-pointer text-[#00a0df] hover:underline">Ver respuesta JSON completa</summary>
-            <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
+            <pre className="mt-2 overflow-auto max-h-[150px] p-2 bg-gray-50 rounded text-xs">
               {JSON.stringify(data, null, 2)}
             </pre>
           </details>
@@ -878,12 +878,12 @@ export default function CustomerData() {
 
                       <div className="flex space-x-4">
                         <div>
-                          <p className="text-xs text-gray-500">Multivivienda</p>
+                          <p className="text-xs text-gray-500 font-semibold">Multivivienda</p>
                           <div className="flex items-center mt-1">
                             <div
-                              className={`w-2 h-2 rounded-full mr-2 ${contract.multiHousing ? "bg-green-500" : "bg-red-500"}`}
+                              className={`w-2 h-2 rounded-full mr-2 ${contract.multiHousing === "1" ? "bg-green-500" : "bg-red-500"}`}
                             ></div>
-                            <p className="text-sm">{contract.multiHousing ? "Sí" : "No"}</p>
+                            <p className="text-sm">{contract.multiHousing === "1" ? "Sí" : "No"}</p>
                           </div>
                         </div>
 
@@ -953,39 +953,42 @@ export default function CustomerData() {
     <div className="space-y-6">
       {/* Alerta de IP no autorizada */}
       {ipCheckLoading ? (
-        <div className="flex justify-center items-center p-4">
-          <Loader2 className="h-6 w-6 animate-spin text-[#00a0df] mr-2" />
+        <div className="flex justify-center items-center p-2">
+          <Loader2 className="h-5 w-5 animate-spin text-[#00a0df] mr-2" />
           <span>Verificando acceso...</span>
         </div>
       ) : !ipAuthorized ? (
-        <Alert variant="destructive" className="bg-red-50 border-red-300">
+        <Alert variant="destructive" className="bg-red-50 border-red-300 py-2">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle className="text-red-800 font-bold">Acceso restringido</AlertTitle>
-          <AlertDescription className="text-red-700">
+          <AlertTitle className="text-red-800 font-bold text-sm">Acceso restringido</AlertTitle>
+          <AlertDescription className="text-red-700 text-xs">
             Esta aplicación solo está disponible desde la red corporativa (212.142.*.*).
             <br />
             Su dirección IP actual es: {clientIP}
           </AlertDescription>
         </Alert>
       ) : (
-        <Alert className="bg-green-50 border-green-300">
-          <AlertTitle className="text-green-800">Acceso autorizado</AlertTitle>
-          <AlertDescription className="text-green-700">
-            IP autorizada: {clientIP} {clientIP === "0.0.0.0" && "(modo preview)"}
-          </AlertDescription>
+        <Alert className="bg-green-50 border-green-300 py-1 flex items-center space-x-2">
+          <div>
+            <AlertTitle className="text-green-800 text-sm">Acceso autorizado</AlertTitle>
+            <AlertDescription className="text-green-700 text-xs">
+              IP: {clientIP} {clientIP === "0.0.0.0" && "(modo preview)"}
+            </AlertDescription>
+          </div>
         </Alert>
       )}
 
       {/* Tabla con 2 columnas para la sección de búsqueda */}
-      <div className="w-full border border-gray-200 rounded-md overflow-hidden">
+      {/* Reducir el espacio entre elementos en la tabla de búsqueda */}
+      <div className="w-full border border-gray-200 rounded-md overflow-hidden mb-3">
         <table className="w-full">
           <tbody>
             <tr>
               {/* Columna izquierda: RadioButton, campo de texto y botón */}
-              <td className="p-4 border-r border-gray-200 w-1/2">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-[#003a4d] font-medium">Tipo de búsqueda</Label>
+              <td className="p-3 border-r border-gray-200 w-1/2">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <Label className="text-[#003a4d] font-medium text-sm">Tipo de búsqueda</Label>
                     <RadioGroup
                       value={searchMode}
                       onValueChange={handleSearchModeChange}
@@ -994,21 +997,21 @@ export default function CustomerData() {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="dni" id="dni" />
-                        <Label htmlFor="dni" className={`cursor-pointer ${!ipAuthorized ? "opacity-50" : ""}`}>
+                        <Label htmlFor="dni" className={`cursor-pointer text-sm ${!ipAuthorized ? "opacity-50" : ""}`}>
                           DNI/NIF
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="ic" id="ic" />
-                        <Label htmlFor="ic" className={`cursor-pointer ${!ipAuthorized ? "opacity-50" : ""}`}>
+                        <Label htmlFor="ic" className={`cursor-pointer text-sm ${!ipAuthorized ? "opacity-50" : ""}`}>
                           IC
                         </Label>
                       </div>
                     </RadioGroup>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="input-value" className="text-[#003a4d] font-medium">
+                  <div className="space-y-1">
+                    <Label htmlFor="input-value" className="text-[#003a4d] font-medium text-sm">
                       {searchMode === "dni" ? "DNI/NIF" : "IC"}
                     </Label>
                     <div className="flex space-x-2">
@@ -1017,21 +1020,21 @@ export default function CustomerData() {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value.toUpperCase())}
                         placeholder={`Introduce el ${searchMode === "dni" ? "DNI/NIF" : "IC"}`}
-                        className="flex-1 border-[#e0e0e0] focus:border-[#00a0df] focus:ring-[#00a0df]"
+                        className="flex-1 border-[#e0e0e0] focus:border-[#00a0df] focus:ring-[#00a0df] h-8 text-sm"
                         disabled={!ipAuthorized}
                       />
                       <Button
                         onClick={handleFetchData}
                         disabled={loading || !ipAuthorized}
-                        className="bg-[#00a0df] hover:bg-[#0090c9] text-white"
+                        className="bg-[#00a0df] hover:bg-[#0090c9] text-white h-8 px-3 py-0"
                       >
                         {loading ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Consultando...
+                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                            <span className="text-xs">Consultando...</span>
                           </>
                         ) : (
-                          "Consultar"
+                          <span className="text-xs">Consultar</span>
                         )}
                       </Button>
                     </div>
@@ -1040,18 +1043,18 @@ export default function CustomerData() {
               </td>
 
               {/* Columna derecha: Panel de históricos */}
-              <td className="p-4 w-1/2">
+              <td className="p-3 w-1/2">
                 <div className="h-full border border-gray-200 rounded-md bg-white shadow-sm">
-                  <div className="bg-[#003a4d] text-white p-2 rounded-t-md flex items-center justify-between">
+                  <div className="bg-[#003a4d] text-white p-1.5 rounded-t-md flex items-center justify-between">
                     <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2" />
-                      <span className="text-sm font-medium">Historial de consultas</span>
+                      <Clock className="h-3 w-3 mr-1" />
+                      <span className="text-xs font-medium">Historial de consultas</span>
                     </div>
                     {searchHistory.length > 0 && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 text-white hover:bg-[#00a0df]/20"
+                        className="h-5 text-white hover:bg-[#00a0df]/20 p-0 px-1"
                         onClick={() => setSearchHistory([])}
                       >
                         <RefreshCw className="h-3 w-3 mr-1" />
@@ -1060,28 +1063,28 @@ export default function CustomerData() {
                     )}
                   </div>
 
-                  <ScrollArea className="h-[200px] p-2">
+                  <ScrollArea className="h-[150px] p-2">
                     {searchHistory.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm p-4">
-                        <Clock className="h-10 w-10 mb-2 opacity-20" />
-                        <p>No hay consultas en el historial</p>
+                        <Clock className="h-8 w-8 mb-1 opacity-20" />
+                        <p className="text-xs">No hay consultas en el historial</p>
                         <p className="text-xs">Las consultas exitosas se mostrarán aquí</p>
                       </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {searchHistory.map((item) => (
                           <div
                             key={item.id}
                             onClick={() => handleHistoryItemClick(item)}
-                            className="p-2 border border-gray-100 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="p-1.5 border border-gray-100 rounded hover:bg-gray-50 cursor-pointer transition-colors"
                           >
-                            <div className="flex justify-between items-center mb-1">
+                            <div className="flex justify-between items-center mb-0.5">
                               <span className="text-xs font-medium text-[#00a0df]">
                                 {item.searchMode === "dni" ? "DNI/NIF" : "IC"}: {item.searchValue}
                               </span>
                               <span className="text-xs text-gray-400">{formatHistoryTimestamp(item.timestamp)}</span>
                             </div>
-                            <div className="text-sm font-medium truncate">
+                            <div className="text-xs font-medium truncate">
                               {item.ic} - {item.cif} - {item.businessName}
                             </div>
                           </div>
@@ -1102,16 +1105,20 @@ export default function CustomerData() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Panel 1: Ficha de cliente */}
+      {/* Reorganización de paneles en 2 filas */}
+      {/* Fila 1: Panel 1 (Cliente) a todo el ancho */}
+      <div className="space-y-3">
+        {/* Panel 1: Ficha de cliente - Ocupa todo el ancho */}
         <div className="nortegas-card">
-          <div className="nortegas-card-header">
-            <h3 className="font-medium">Panel 1: Cliente</h3>
-            <p className="text-xs opacity-80">Datos del cliente</p>
+          <div className="nortegas-card-header flex justify-between items-center">
+            <div>
+              <h3 className="font-medium text-sm">Panel 1: Cliente</h3>
+              <p className="text-xs opacity-80">Datos del cliente</p>
+            </div>
           </div>
           <div className="nortegas-card-content">
             {loading ? (
-              <div className="flex justify-center items-center h-40">
+              <div className="flex justify-center items-center h-32">
                 <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
               </div>
             ) : customerData ? (
@@ -1128,317 +1135,330 @@ export default function CustomerData() {
           </div>
         </div>
 
-        {/* Panel 2: Datos de contratos */}
-        <div className="nortegas-card">
-          <div className="nortegas-card-header">
-            <h3 className="font-medium">Panel 2: Contratos</h3>
-            <p className="text-xs opacity-80">Contratos detallados</p>
-          </div>
-          <div className="nortegas-card-content">
-            {contractsLoading ? (
-              <div className="flex justify-center items-center h-40">
-                <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
+        {/* Fila 2: Panel 2 (Contratos) y Panel 3 (Selector y Detalles) en dos columnas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Panel 2: Datos de contratos - Columna izquierda */}
+          <div className="nortegas-card">
+            <div className="nortegas-card-header flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-sm">Panel 2: Contratos</h3>
+                <p className="text-xs opacity-80">Contratos detallados</p>
               </div>
-            ) : contractsError ? (
-              <div className="text-red-600">
-                <p>Error al obtener contratos:</p>
-                <p className="text-sm">{contractsError}</p>
-              </div>
-            ) : contractsData ? (
-              renderContractCards(contractsData)
-            ) : firstApiStatus === 200 && customerData && (!customerData.value || !customerData.value.ic) ? (
-              <p className="text-amber-600">
-                El cliente no tiene un IC asociado en la estructura "value". No se pueden obtener contratos.
-              </p>
-            ) : firstApiStatus === 200 && customerData ? (
-              <p className="text-amber-600">No se encontraron contratos para este cliente.</p>
-            ) : (
-              <p className="text-gray-400 italic">
-                Los contratos se mostrarán aquí después de consultar un cliente con IC.
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Panel 3: Dividido en dos subpaneles */}
-        <div className="nortegas-card">
-          <div className="nortegas-card-header">
-            <h3 className="font-medium">Panel 3: Selector y Detalles</h3>
-            <p className="text-xs opacity-80">Contratos, Consumos y Facturas</p>
-          </div>
-          <div className="nortegas-card-content">
-            {secondApiStatus === 200 && processedContracts.length > 0 ? (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contract-select" className="text-[#003a4d]">
-                    Contratos disponibles ({processedContracts.length})
-                  </Label>
-                  <Select value={selectedContract} onValueChange={setSelectedContract} disabled={!ipAuthorized}>
-                    <SelectTrigger id="contract-select" className="w-full border-[#e0e0e0]">
-                      <SelectValue placeholder="Seleccione un contrato" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {processedContracts.map((contract) => (
-                        <SelectItem key={contract.id} value={contract.id}>
-                          {contract.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            </div>
+            <div className="nortegas-card-content">
+              {contractsLoading ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
                 </div>
+              ) : contractsError ? (
+                <div className="text-red-600">
+                  <p>Error al obtener contratos:</p>
+                  <p className="text-sm">{contractsError}</p>
+                </div>
+              ) : contractsData ? (
+                renderContractCards(contractsData)
+              ) : firstApiStatus === 200 && customerData && (!customerData.value || !customerData.value.ic) ? (
+                <p className="text-amber-600">
+                  El cliente no tiene un IC asociado en la estructura "value". No se pueden obtener contratos.
+                </p>
+              ) : firstApiStatus === 200 && customerData ? (
+                <p className="text-amber-600">No se encontraron contratos para este cliente.</p>
+              ) : (
+                <p className="text-gray-400 italic">
+                  Los contratos se mostrarán aquí después de consultar un cliente con IC.
+                </p>
+              )}
+            </div>
+          </div>
 
-                {selectedContract && (
-                  <div className="mt-4">
-                    <Tabs
-                      defaultValue="consums"
-                      className="w-full"
-                      onValueChange={(value) => setActiveTab(value as ActiveTab)}
-                    >
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="consums">Panel 3.1: Consumos</TabsTrigger>
-                        <TabsTrigger value="invoices">Panel 3.2: Facturas</TabsTrigger>
-                      </TabsList>
+          {/* Panel 3: Dividido en dos subpaneles - Columna derecha */}
+          <div className="nortegas-card">
+            <div className="nortegas-card-header flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-sm">Panel 3: Selector y Detalles</h3>
+                <p className="text-xs opacity-80">Contratos, Consumos y Facturas</p>
+              </div>
+            </div>
+            <div className="nortegas-card-content">
+              {secondApiStatus === 200 && processedContracts.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="contract-select" className="text-[#003a4d]">
+                      Contratos disponibles ({processedContracts.length})
+                    </Label>
+                    <Select value={selectedContract} onValueChange={setSelectedContract} disabled={!ipAuthorized}>
+                      <SelectTrigger id="contract-select" className="w-full border-[#e0e0e0]">
+                        <SelectValue placeholder="Seleccione un contrato" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {processedContracts.map((contract) => (
+                          <SelectItem key={contract.id} value={contract.id}>
+                            {contract.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                      {/* Panel 3.1: Consumos */}
-                      <TabsContent value="consums" className="border rounded-md p-4 mt-2">
-                        <h4 className="text-sm font-medium text-[#003a4d] mb-2">Consumos del contrato:</h4>
-                        {consumsLoading ? (
-                          <div className="flex justify-center items-center h-40">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
-                          </div>
-                        ) : consumsError ? (
-                          <div className="text-red-600">
-                            <p>Error al obtener consumos:</p>
-                            <p className="text-sm">{consumsError}</p>
-                          </div>
-                        ) : consumsData ? (
-                          <div className="space-y-6">
-                            {/* Sección superior: Lecturas del contador */}
-                            <div className="border rounded-md p-3 bg-gray-50">
-                              <h5 className="text-sm font-medium text-[#003a4d] mb-3">Lecturas del contador</h5>
-                              {consumsData.value &&
-                              consumsData.value.meterReadings &&
-                              consumsData.value.meterReadings.length > 0 ? (
-                                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                  {selectedContract && (
+                    <div className="mt-4">
+                      <Tabs
+                        defaultValue="consums"
+                        className="w-full"
+                        onValueChange={(value) => setActiveTab(value as ActiveTab)}
+                      >
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="consums">Panel 3.1: Consumos</TabsTrigger>
+                          <TabsTrigger value="invoices">Panel 3.2: Facturas</TabsTrigger>
+                        </TabsList>
+
+                        {/* Panel 3.1: Consumos */}
+                        <TabsContent value="consums" className="border rounded-md p-4 mt-2">
+                          <h4 className="text-sm font-medium text-[#003a4d] mb-2">Consumos del contrato:</h4>
+                          {consumsLoading ? (
+                            <div className="flex justify-center items-center h-40">
+                              <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
+                            </div>
+                          ) : consumsError ? (
+                            <div className="text-red-600">
+                              <p>Error al obtener consumos:</p>
+                              <p className="text-sm">{consumsError}</p>
+                            </div>
+                          ) : consumsData ? (
+                            <div className="space-y-6">
+                              {/* Sección superior: Lecturas del contador */}
+                              <div className="border rounded-md p-3 bg-gray-50">
+                                <h5 className="text-sm font-medium text-[#003a4d] mb-3">Lecturas del contador</h5>
+                                {consumsData.value &&
+                                consumsData.value.meterReadings &&
+                                consumsData.value.meterReadings.length > 0 ? (
+                                  <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                                    <table className="w-full text-sm">
+                                      <thead className="bg-gray-100">
+                                        <tr>
+                                          <th className="text-left py-2 px-3 text-xs font-medium text-[#003a4d]">
+                                            Fecha
+                                          </th>
+                                          <th className="text-right py-2 px-3 text-xs font-medium text-[#003a4d]">
+                                            Lectura (m³)
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {consumsData.value.meterReadings.map((reading: any, index: number) => (
+                                          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                            <td className="py-2 px-3 border-t border-gray-100">
+                                              {new Date(reading.readingDate).toLocaleDateString("es-ES")}
+                                            </td>
+                                            <td className="py-2 px-3 text-right font-medium border-t border-gray-100">
+                                              {reading.readingValue}
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-500 italic">
+                                    No hay lecturas disponibles para este contrato.
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Sección inferior: Consumos de gas */}
+                              <div className="border rounded-md p-3 bg-gray-50">
+                                <h5 className="text-sm font-medium text-[#003a4d] mb-3">Consumos de gas</h5>
+                                {consumsData.value &&
+                                consumsData.value.consumptionRecords &&
+                                consumsData.value.consumptionRecords.length > 0 ? (
+                                  <div className="space-y-3">
+                                    {consumsData.value.consumptionRecords.map((record: any, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="bg-white p-3 rounded border border-gray-200 shadow-sm"
+                                      >
+                                        <div className="flex justify-between items-center mb-2">
+                                          <span className="text-xs font-medium text-[#003a4d]">
+                                            {new Date(record.startDate).toLocaleDateString("es-ES")} -{" "}
+                                            {new Date(record.endDate).toLocaleDateString("es-ES")}
+                                          </span>
+                                          <span className="text-xs bg-[#00a0df]/10 text-[#00a0df] px-1 rounded">
+                                            Periodo
+                                          </span>
+                                        </div>
+                                        <div className="flex items-baseline">
+                                          <span className="text-sm font-medium">
+                                            {record.consumption} <span className="text-xs text-gray-500">m³</span>
+                                          </span>
+                                          {record.averageCpConsumption && (
+                                            <span className="ml-2 text-xs text-gray-500">
+                                              (Promedio vecinos: {record.averageCpConsumption} m³)
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-500 italic">
+                                    No hay datos de consumo disponibles para este contrato.
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Opción para ver JSON completo */}
+                              <div className="pt-2 border-t border-gray-200">
+                                <details className="text-xs">
+                                  <summary className="cursor-pointer text-[#00a0df] hover:underline">
+                                    Ver respuesta JSON completa
+                                  </summary>
+                                  <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
+                                    {JSON.stringify(consumsData, null, 2)}
+                                  </pre>
+                                </details>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-gray-400 italic">
+                              Los datos de consumo se mostrarán aquí al seleccionar un contrato.
+                            </p>
+                          )}
+                        </TabsContent>
+
+                        {/* Panel 3.2: Facturas */}
+                        <TabsContent value="invoices" className="border rounded-md p-4 mt-2">
+                          <h4 className="text-sm font-medium text-[#003a4d] mb-2">Facturas del contrato:</h4>
+                          {invoicesLoading ? (
+                            <div className="flex justify-center items-center h-40">
+                              <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
+                            </div>
+                          ) : invoicesError ? (
+                            <div className="text-red-600">
+                              <p>Error al obtener facturas:</p>
+                              <p className="text-sm">{invoicesError}</p>
+                            </div>
+                          ) : invoicesData ? (
+                            <div className="space-y-4">
+                              {/* Listado de facturas */}
+                              {invoicesData.value &&
+                              invoicesData.value.invoices &&
+                              invoicesData.value.invoices.length > 0 ? (
+                                <div className="border rounded-md overflow-hidden">
                                   <table className="w-full text-sm">
-                                    <thead className="bg-gray-100">
+                                    <thead className="bg-[#003a4d] text-white">
                                       <tr>
-                                        <th className="text-left py-2 px-3 text-xs font-medium text-[#003a4d]">
-                                          Fecha
-                                        </th>
-                                        <th className="text-right py-2 px-3 text-xs font-medium text-[#003a4d]">
-                                          Lectura (m³)
-                                        </th>
+                                        <th className="text-left py-2 px-3 font-medium">Nº Factura</th>
+                                        <th className="text-left py-2 px-3 font-medium">Periodo</th>
+                                        <th className="text-right py-2 px-3 font-medium">Importe</th>
+                                        <th className="text-center py-2 px-3 font-medium">Estado</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {consumsData.value.meterReadings.map((reading: any, index: number) => (
-                                        <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                          <td className="py-2 px-3 border-t border-gray-100">
-                                            {new Date(reading.readingDate).toLocaleDateString("es-ES")}
-                                          </td>
-                                          <td className="py-2 px-3 text-right font-medium border-t border-gray-100">
-                                            {reading.readingValue}
-                                          </td>
-                                        </tr>
-                                      ))}
+                                      {invoicesData.value.invoices.map((invoice: any, index: number) => {
+                                        // Determinar el color del estado
+                                        let statusColor = "bg-gray-100 text-gray-600"
+                                        if (invoice.invoiceStatus) {
+                                          const status = invoice.invoiceStatus.toUpperCase()
+                                          if (status === "PAGADA" || status === "PAID") {
+                                            statusColor = "bg-green-100 text-green-700"
+                                          } else if (status === "PENDIENTE" || status === "PENDING") {
+                                            statusColor = "bg-yellow-100 text-yellow-700"
+                                          } else if (status === "ANULADA" || status === "CANCELLED") {
+                                            statusColor = "bg-red-100 text-red-700"
+                                          }
+                                        }
+
+                                        // Formatear el importe si existe
+                                        const formattedAmount = invoice.invoiceAmount
+                                          ? `${Number.parseFloat(invoice.invoiceAmount).toFixed(2)} €`
+                                          : "N/A"
+
+                                        return (
+                                          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                            <td className="py-3 px-3 border-t border-gray-200">
+                                              {invoice.invoiceRef || "No disponible"}
+                                            </td>
+                                            <td className="py-3 px-3 border-t border-gray-200">
+                                              {invoice.invoicePeriod || "No disponible"}
+                                            </td>
+                                            <td className="py-3 px-3 text-right border-t border-gray-200 font-medium">
+                                              {formattedAmount}
+                                            </td>
+                                            <td className="py-3 px-3 text-center border-t border-gray-200">
+                                              <span className={`px-2 py-1 rounded-full text-xs ${statusColor}`}>
+                                                {invoice.invoiceStatus || "Desconocido"}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        )
+                                      })}
                                     </tbody>
                                   </table>
                                 </div>
                               ) : (
-                                <p className="text-sm text-gray-500 italic">
-                                  No hay lecturas disponibles para este contrato.
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Sección inferior: Consumos de gas */}
-                            <div className="border rounded-md p-3 bg-gray-50">
-                              <h5 className="text-sm font-medium text-[#003a4d] mb-3">Consumos de gas</h5>
-                              {consumsData.value &&
-                              consumsData.value.consumptionRecords &&
-                              consumsData.value.consumptionRecords.length > 0 ? (
-                                <div className="space-y-3">
-                                  {consumsData.value.consumptionRecords.map((record: any, index: number) => (
-                                    <div key={index} className="bg-white p-3 rounded border border-gray-200 shadow-sm">
-                                      <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-medium text-[#003a4d]">
-                                          {new Date(record.startDate).toLocaleDateString("es-ES")} -{" "}
-                                          {new Date(record.endDate).toLocaleDateString("es-ES")}
-                                        </span>
-                                        <span className="text-xs bg-[#00a0df]/10 text-[#00a0df] px-1 rounded">
-                                          Periodo
-                                        </span>
-                                      </div>
-                                      <div className="flex items-baseline">
-                                        <span className="text-sm font-medium">
-                                          {record.consumption} <span className="text-xs text-gray-500">m³</span>
-                                        </span>
-                                        {record.averageCpConsumption && (
-                                          <span className="ml-2 text-xs text-gray-500">
-                                            (Promedio vecinos: {record.averageCpConsumption} m³)
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
+                                <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
+                                  <p className="text-amber-600">No se encontraron facturas para este contrato.</p>
                                 </div>
-                              ) : (
-                                <p className="text-sm text-gray-500 italic">
-                                  No hay datos de consumo disponibles para este contrato.
-                                </p>
                               )}
-                            </div>
 
-                            {/* Opción para ver JSON completo */}
-                            <div className="pt-2 border-t border-gray-200">
-                              <details className="text-xs">
-                                <summary className="cursor-pointer text-[#00a0df] hover:underline">
-                                  Ver respuesta JSON completa
-                                </summary>
-                                <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
-                                  {JSON.stringify(consumsData, null, 2)}
-                                </pre>
-                              </details>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-400 italic">
-                            Los datos de consumo se mostrarán aquí al seleccionar un contrato.
-                          </p>
-                        )}
-                      </TabsContent>
-
-                      {/* Panel 3.2: Facturas */}
-                      <TabsContent value="invoices" className="border rounded-md p-4 mt-2">
-                        <h4 className="text-sm font-medium text-[#003a4d] mb-2">Facturas del contrato:</h4>
-                        {invoicesLoading ? (
-                          <div className="flex justify-center items-center h-40">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#00a0df]" />
-                          </div>
-                        ) : invoicesError ? (
-                          <div className="text-red-600">
-                            <p>Error al obtener facturas:</p>
-                            <p className="text-sm">{invoicesError}</p>
-                          </div>
-                        ) : invoicesData ? (
-                          <div className="space-y-4">
-                            {/* Listado de facturas */}
-                            {invoicesData.value &&
-                            invoicesData.value.invoices &&
-                            invoicesData.value.invoices.length > 0 ? (
-                              <div className="border rounded-md overflow-hidden">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-[#003a4d] text-white">
-                                    <tr>
-                                      <th className="text-left py-2 px-3 font-medium">Nº Factura</th>
-                                      <th className="text-left py-2 px-3 font-medium">Periodo</th>
-                                      <th className="text-right py-2 px-3 font-medium">Importe</th>
-                                      <th className="text-center py-2 px-3 font-medium">Estado</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {invoicesData.value.invoices.map((invoice: any, index: number) => {
-                                      // Determinar el color del estado
-                                      let statusColor = "bg-gray-100 text-gray-600"
-                                      if (invoice.invoiceStatus) {
-                                        const status = invoice.invoiceStatus.toUpperCase()
-                                        if (status === "PAGADA" || status === "PAID") {
-                                          statusColor = "bg-green-100 text-green-700"
-                                        } else if (status === "PENDIENTE" || status === "PENDING") {
-                                          statusColor = "bg-yellow-100 text-yellow-700"
-                                        } else if (status === "ANULADA" || status === "CANCELLED") {
-                                          statusColor = "bg-red-100 text-red-700"
-                                        }
-                                      }
-
-                                      // Formatear el importe si existe
-                                      const formattedAmount = invoice.invoiceAmount
-                                        ? `${Number.parseFloat(invoice.invoiceAmount).toFixed(2)} €`
-                                        : "N/A"
-
-                                      return (
-                                        <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                          <td className="py-3 px-3 border-t border-gray-200">
-                                            {invoice.invoiceRef || "No disponible"}
-                                          </td>
-                                          <td className="py-3 px-3 border-t border-gray-200">
-                                            {invoice.invoicePeriod || "No disponible"}
-                                          </td>
-                                          <td className="py-3 px-3 text-right border-t border-gray-200 font-medium">
-                                            {formattedAmount}
-                                          </td>
-                                          <td className="py-3 px-3 text-center border-t border-gray-200">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${statusColor}`}>
-                                              {invoice.invoiceStatus || "Desconocido"}
-                                            </span>
-                                          </td>
-                                        </tr>
-                                      )
-                                    })}
-                                  </tbody>
-                                </table>
+                              {/* Opción para ver JSON completo */}
+                              <div className="pt-3 border-t border-gray-200">
+                                <details className="text-xs">
+                                  <summary className="cursor-pointer text-[#00a0df] hover:underline">
+                                    Ver respuesta JSON completa
+                                  </summary>
+                                  <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
+                                    {JSON.stringify(invoicesData, null, 2)}
+                                  </pre>
+                                </details>
                               </div>
-                            ) : (
-                              <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
-                                <p className="text-amber-600">No se encontraron facturas para este contrato.</p>
-                              </div>
-                            )}
-
-                            {/* Opción para ver JSON completo */}
-                            <div className="pt-3 border-t border-gray-200">
-                              <details className="text-xs">
-                                <summary className="cursor-pointer text-[#00a0df] hover:underline">
-                                  Ver respuesta JSON completa
-                                </summary>
-                                <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
-                                  {JSON.stringify(invoicesData, null, 2)}
-                                </pre>
-                              </details>
                             </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-400 italic">
-                            Las facturas se mostrarán aquí al seleccionar la pestaña de facturas.
-                          </p>
-                        )}
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                )}
-              </div>
-            ) : secondApiStatus === 200 &&
-              contractsData &&
-              contractsData.value &&
-              (!contractsData.value.contracts || contractsData.value.contracts.length === 0) ? (
-              <p className="text-amber-600">No se encontraron contratos en la estructura "value.contracts".</p>
-            ) : secondApiStatus !== 200 && secondApiStatus !== null ? (
-              <p className="text-amber-600">
-                La segunda API no devolvió un código 200. No se pueden mostrar contratos.
-              </p>
-            ) : (
-              <p className="text-gray-400 italic">
-                Los contratos se mostrarán aquí cuando la segunda API devuelva un código 200.
-              </p>
-            )}
+                          ) : (
+                            <p className="text-gray-400 italic">
+                              Las facturas se mostrarán aquí al seleccionar la pestaña de facturas.
+                            </p>
+                          )}
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                  )}
+                </div>
+              ) : secondApiStatus === 200 &&
+                contractsData &&
+                contractsData.value &&
+                (!contractsData.value.contracts || contractsData.value.contracts.length === 0) ? (
+                <p className="text-amber-600">No se encontraron contratos en la estructura "value.contracts".</p>
+              ) : secondApiStatus !== 200 && secondApiStatus !== null ? (
+                <p className="text-amber-600">
+                  La segunda API no devolvió un código 200. No se pueden mostrar contratos.
+                </p>
+              ) : (
+                <p className="text-gray-400 italic">
+                  Los contratos se mostrarán aquí cuando la segunda API devuelva un código 200.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Consola de registro de llamadas HTTP */}
-      <div className="mt-6 nortegas-card">
-        <div className="nortegas-card-header">
-          <h3 className="font-medium">Consola HTTP</h3>
-          <p className="text-xs opacity-80">Registro de llamadas realizadas</p>
+      {/* Reducir el espacio entre elementos en la consola HTTP */}
+      <div className="mt-4 nortegas-card">
+        <div className="nortegas-card-header flex justify-between items-center">
+          <div>
+            <h3 className="font-medium text-sm">Consola HTTP</h3>
+            <p className="text-xs opacity-80">Registro de llamadas realizadas</p>
+          </div>
         </div>
         <div className="nortegas-card-content p-0">
-          <div className="nortegas-console overflow-auto max-h-[300px]">
+          <div className="nortegas-console overflow-auto max-h-[200px]">
             {consoleLogs.length === 0 ? (
-              <p className="text-gray-500">No hay registros de llamadas HTTP.</p>
+              <p className="text-gray-500 text-xs">No hay registros de llamadas HTTP.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {consoleLogs.map((log, index) => (
-                  <div key={index} className="border-b border-gray-700 pb-2">
+                  <div key={index} className="border-b border-gray-700 pb-1 text-xs">
                     <div className="flex items-start">
                       <span className="text-gray-400 mr-2">[{formatTimestamp(log.timestamp)}]</span>
                       <span
@@ -1458,7 +1478,7 @@ export default function CustomerData() {
                       {log.correlationId && <span className="text-purple-300 ml-2">[{log.correlationId}]</span>}
                     </div>
                     {log.status !== undefined && (
-                      <div className="ml-6 mt-1">
+                      <div className="ml-6">
                         <span
                           className={`${log.status >= 200 && log.status < 300 ? "text-green-400" : "text-red-400"}`}
                         >
@@ -1467,13 +1487,13 @@ export default function CustomerData() {
                       </div>
                     )}
                     {log.response && (
-                      <div className="ml-6 mt-1">
+                      <div className="ml-6">
                         <span className="text-gray-400">Response: </span>
                         <span className="text-gray-300">{JSON.stringify(log.response).substring(0, 100)}...</span>
                       </div>
                     )}
                     {log.error && (
-                      <div className="ml-6 mt-1">
+                      <div className="ml-6">
                         <span className="text-red-400">Error: {log.error}</span>
                       </div>
                     )}
@@ -1487,4 +1507,3 @@ export default function CustomerData() {
     </div>
   )
 }
-

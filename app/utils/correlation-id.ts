@@ -9,4 +9,3 @@ export function generateCorrelationId(): string {
   // Concatenar el prefijo "PTMNV0-" con el timestamp
   return `PTMNV0-${timestamp}`
 }
-
