@@ -1,0 +1,74 @@
+:root {
+  --nortegas-dark-blue: #003a4d;
+  --nortegas-blue: #00a0df;
+  --nortegas-light-blue: #e6f7ff;
+  --nortegas-gray: #f0f2f5;
+  --nortegas-text: #333333;
+  --nortegas-white: #ffffff;
+}
+
+.nortegas-bg-dark {
+  background-color: var(--nortegas-dark-blue);
+  color: var(--nortegas-white);
+}
+
+.nortegas-bg-blue {
+  background-color: var(--nortegas-blue);
+  color: var(--nortegas-white);
+}
+
+.nortegas-bg-light {
+  background-color: var(--nortegas-light-blue);
+}
+
+.nortegas-bg-gray {
+  background-color: var(--nortegas-gray);
+}
+
+.nortegas-text-blue {
+  color: var(--nortegas-blue);
+}
+
+.nortegas-text-dark {
+  color: var(--nortegas-dark-blue);
+}
+
+.nortegas-btn {
+  background-color: var(--nortegas-blue);
+  color: var(--nortegas-white);
+  border-radius: 4px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nortegas-btn:hover {
+  background-color: #0090c9;
+}
+
+.nortegas-card {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.nortegas-card-header {
+  background-color: var(--nortegas-dark-blue);
+  color: var(--nortegas-white);
+  padding: 1rem;
+}
+
+.nortegas-card-content {
+  padding: 1rem;
+  background-color: var(--nortegas-white);
+}
+
+.nortegas-console {
+  background-color: #1e2736;
+  color: #f8f8f8;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
