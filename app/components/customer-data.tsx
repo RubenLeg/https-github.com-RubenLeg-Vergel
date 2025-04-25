@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { generateCorrelationId } from "@/app/utils/correlation-id"
 import { ScrollArea } from "@/components/ui/scroll-area"
+// Añadir el import para AuthForm al inicio del archivo
+import AuthForm from "./auth-form"
 
 // Tipo para los registros de la consola
 type ConsoleLog = {
@@ -93,6 +95,9 @@ export default function CustomerData() {
   const [ipAuthorized, setIpAuthorized] = useState<boolean | null>(null)
   const [clientIP, setClientIP] = useState<string>("")
   const [ipCheckLoading, setIpCheckLoading] = useState<boolean>(true)
+
+  // Añadir un nuevo estado para controlar la autenticación por clave
+  const [isPasswordAuthenticated, setIsPasswordAuthenticated] = useState<boolean>(false)
 
   // Estado para el historial de consultas
   const [searchHistory, setSearchHistory] = useState<HistoryItem[]>(() => {
@@ -562,8 +567,14 @@ export default function CustomerData() {
   // Función para ejecutar una búsqueda (utilizada tanto por handleFetchData como por handleHistoryItemClick)
   const executeSearch = async (value: string, mode: SearchMode) => {
     // Verificar si la IP está autorizada
-    if (!ipAuthorized) {
-      setError("Acceso restringido: Esta aplicación solo está disponible desde la red corporativa (212.142.*.*)")
+    // if (!ipAuthorized) {
+    //   setError("Acceso restringido: Esta aplicación solo está disponible desde la red corporativa (212.142.*.*)")
+    //   return
+    // }
+
+    // Con esta nueva condición:
+    if (!ipAuthorized && !isPasswordAuthenticated) {
+      setError("Acceso restringido: Por favor, autentíquese para continuar")
       return
     }
 
@@ -994,28 +1005,33 @@ export default function CustomerData() {
     <div className="space-y-6">
       {/* Alerta de IP no autorizada */}
       {ipCheckLoading ? (
-        <div className="flex justify-center items-center p-2">
-          <Loader2 className="h-5 w-5 animate-spin text-[#00a0df] mr-2" />
+        <div className="flex justify-center items-center p-4">
+          <Loader2 className="h-6 w-6 animate-spin text-[#00a0df] mr-2" />
           <span>Verificando acceso...</span>
         </div>
-      ) : !ipAuthorized ? (
-        <Alert variant="destructive" className="bg-red-50 border-red-300 py-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle className="text-red-800 font-bold text-sm">Acceso restringido</AlertTitle>
-          <AlertDescription className="text-red-700 text-xs">
-            Esta aplicación solo está disponible desde la red corporativa (212.142.*.*).
-            <br />
-            Su dirección IP actual es: {clientIP}
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Alert className="bg-green-50 border-green-300 py-1 flex items-center space-x-2">
-          <div>
-            <AlertTitle className="text-green-800 text-sm">Acceso autorizado</AlertTitle>
-            <AlertDescription className="text-green-700 text-xs">
-              IP: {clientIP} {clientIP === "0.0.0.0" && "(modo preview)"}
+      ) : !ipAuthorized && !isPasswordAuthenticated ? (
+        <div className="space-y-4">
+          <Alert variant="destructive" className="bg-red-50 border-red-300">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="text-red-800 font-bold">Acceso restringido</AlertTitle>
+            <AlertDescription className="text-red-700">
+              Esta aplicación está diseñada para la red corporativa (212.142.*.*).
+              <br />
+              Su dirección IP actual es: {clientIP}
+              <br />
+              Por favor, introduzca la clave de acceso para continuar.
             </AlertDescription>
-          </div>
+          </Alert>
+          <AuthForm onAuthenticated={() => setIsPasswordAuthenticated(true)} />
+        </div>
+      ) : (
+        <Alert className="bg-green-50 border-green-300 py-1">
+          <AlertTitle className="text-green-800">Acceso autorizado</AlertTitle>
+          <AlertDescription className="text-green-700">
+            {ipAuthorized
+              ? `IP autorizada: ${clientIP} ${clientIP === "0.0.0.0" && "(modo preview)"}`
+              : "Acceso mediante clave"}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -1034,17 +1050,23 @@ export default function CustomerData() {
                       value={searchMode}
                       onValueChange={handleSearchModeChange}
                       className="flex space-x-4"
-                      disabled={!ipAuthorized}
+                      disabled={!ipAuthorized && !isPasswordAuthenticated}
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="dni" id="dni" />
-                        <Label htmlFor="dni" className={`cursor-pointer text-sm ${!ipAuthorized ? "opacity-50" : ""}`}>
+                        <Label
+                          htmlFor="dni"
+                          className={`cursor-pointer text-sm ${!ipAuthorized && !isPasswordAuthenticated ? "opacity-50" : ""}`}
+                        >
                           DNI/NIF
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="ic" id="ic" />
-                        <Label htmlFor="ic" className={`cursor-pointer text-sm ${!ipAuthorized ? "opacity-50" : ""}`}>
+                        <Label
+                          htmlFor="ic"
+                          className={`cursor-pointer text-sm ${!ipAuthorized && !isPasswordAuthenticated ? "opacity-50" : ""}`}
+                        >
                           IC
                         </Label>
                       </div>
@@ -1062,11 +1084,11 @@ export default function CustomerData() {
                         onChange={(e) => setInputValue(e.target.value.toUpperCase())}
                         placeholder={`Introduce el ${searchMode === "dni" ? "DNI/NIF" : "IC"}`}
                         className="flex-1 border-[#e0e0e0] focus:border-[#00a0df] focus:ring-[#00a0df] h-8 text-sm"
-                        disabled={!ipAuthorized}
+                        disabled={!ipAuthorized && !isPasswordAuthenticated}
                       />
                       <Button
                         onClick={handleFetchData}
-                        disabled={loading || !ipAuthorized}
+                        disabled={loading || (!ipAuthorized && !isPasswordAuthenticated)}
                         className="bg-[#00a0df] hover:bg-[#0090c9] text-white h-8 px-3 py-0"
                       >
                         {loading ? (
@@ -1228,7 +1250,11 @@ export default function CustomerData() {
                     <Label htmlFor="contract-select" className="text-[#003a4d]">
                       Contratos disponibles ({processedContracts.length})
                     </Label>
-                    <Select value={selectedContract} onValueChange={setSelectedContract} disabled={!ipAuthorized}>
+                    <Select
+                      value={selectedContract}
+                      onValueChange={setSelectedContract}
+                      disabled={!ipAuthorized && !isPasswordAuthenticated}
+                    >
                       <SelectTrigger id="contract-select" className="w-full border-[#e0e0e0]">
                         <SelectValue placeholder="Seleccione un contrato" />
                       </SelectTrigger>

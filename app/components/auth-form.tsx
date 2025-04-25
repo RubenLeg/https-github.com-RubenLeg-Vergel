@@ -62,9 +62,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
           <KeyIcon className="mr-2 h-5 w-5" />
           Autenticación requerida
         </CardTitle>
-        <CardDescription className="text-gray-200">
-          Introduce la contraseña para acceder a la API de Nortegas
-        </CardDescription>
+        <CardDescription className="text-gray-200">Introduzca la clave de acceso para continuar</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit}>
@@ -75,7 +73,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Clave de acceso</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -83,7 +81,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pr-10"
-                  placeholder="Introduce la contraseña de la API"
+                  placeholder="Introduzca la clave de acceso"
                 />
                 <button
                   type="button"
@@ -108,7 +106,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
                   Verificando...
                 </>
               ) : (
-                "Iniciar sesión"
+                "Acceder"
               )}
             </Button>
           </CardFooter>
