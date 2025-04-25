@@ -54,6 +54,15 @@ type HistoryItem = {
   timestamp: number
 }
 
+// Añadir estos nuevos tipos después de los tipos existentes
+// Actualizar el tipo InspectionData para almacenar todas las fechas
+type InspectionData = {
+  cups: string
+  inspectionDates: string[] // Cambiado de lastInspectionDate a inspectionDates (array)
+  loading: boolean
+  error: string | null
+}
+
 // Añadir después de las definiciones de tipos, antes del componente CustomerData
 // Constantes para el almacenamiento del historial
 const HISTORY_STORAGE_KEY = "nortegas_search_history"
@@ -87,6 +96,9 @@ export default function CustomerData() {
   const [invoicesLoading, setInvoicesLoading] = useState<boolean>(false)
   const [invoicesError, setInvoicesError] = useState<string | null>(null)
   const [invoicesApiStatus, setInvoicesApiStatus] = useState<number | null>(null)
+
+  // Añadir este nuevo estado después de los estados existentes en el componente CustomerData
+  const [inspectionsData, setInspectionsData] = useState<Record<string, InspectionData>>({})
 
   // Estado para la pestaña activa
   const [activeTab, setActiveTab] = useState<ActiveTab>("consums")
@@ -554,6 +566,157 @@ export default function CustomerData() {
     }
   }
 
+  // Añadir esta nueva función después de la función fetchInvoicesData
+  // Función para obtener datos de inspecciones
+  const fetchInspectionData = async (ic: string, cups: string) => {
+    if (!ic || !cups) {
+      addConsoleLog({
+        timestamp: new Date().toISOString(),
+        method: "ERROR",
+        url: "Llamada a API de inspecciones cancelada - Faltan parámetros requeridos",
+      })
+      return null
+    }
+
+    // Actualizar el estado para mostrar que está cargando
+    setInspectionsData((prev) => ({
+      ...prev,
+      [cups]: {
+        cups,
+        inspectionDates: [], // Inicializar como array vacío
+        loading: true,
+        error: null,
+      },
+    }))
+
+    // Generar correlation ID para la llamada
+    const correlationId = generateCorrelationId()
+
+    // Registrar la llamada en la consola
+    const timestamp = new Date().toISOString()
+    const url = `/api/inspection-reports?ic=${encodeURIComponent(ic)}&cups=${encodeURIComponent(cups)}`
+
+    addConsoleLog({
+      timestamp,
+      method: "GET",
+      url: `${url} (Llamada para obtener inspecciones del contrato)`,
+      correlationId,
+    })
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          "x-correlation-id": correlationId,
+        },
+      })
+
+      const result = await response.json()
+
+      // Actualizar el registro de la consola con el resultado
+      addConsoleLog({
+        timestamp: new Date().toISOString(),
+        method: "GET",
+        url,
+        status: response.status,
+        response: result,
+        correlationId,
+      })
+
+      if (response.ok) {
+        // Procesar la respuesta para obtener todas las fechas
+        let inspectionDates: string[] = []
+
+        if (
+          result.value &&
+          result.value.inspectionReports &&
+          Array.isArray(result.value.inspectionReports) &&
+          result.value.inspectionReports.length > 0
+        ) {
+          // Extraer todas las fechas de revisión
+          inspectionDates = result.value.inspectionReports
+            .filter((report: any) => report.reviewDate) // Filtrar solo los que tienen fecha
+            .map((report: any) => report.reviewDate) // Extraer las fechas
+            // Ordenar de más nueva a más antigua - las fechas están en formato AAAAMMDD, así que la comparación directa de strings funciona
+            .sort((a: string, b: string) => b.localeCompare(a))
+        }
+
+        // Actualizar el estado con todas las fechas de inspección
+        setInspectionsData((prev) => ({
+          ...prev,
+          [cups]: {
+            cups,
+            inspectionDates,
+            loading: false,
+            error: null,
+          },
+        }))
+
+        return inspectionDates
+      } else {
+        const errorMsg = `Error: ${result.error || "Desconocido"} ${result.details ? `- ${result.details}` : ""}`
+
+        // Actualizar el estado con el error
+        setInspectionsData((prev) => ({
+          ...prev,
+          [cups]: {
+            cups,
+            inspectionDates: [],
+            loading: false,
+            error: errorMsg,
+          },
+        }))
+
+        return null
+      }
+    } catch (err) {
+      // Registrar el error en la consola
+      addConsoleLog({
+        timestamp: new Date().toISOString(),
+        method: "GET",
+        url,
+        error: err instanceof Error ? err.message : "Error desconocido",
+        correlationId,
+      })
+
+      const errorMsg = "Error inesperado al obtener datos de inspecciones"
+
+      // Actualizar el estado con el error
+      setInspectionsData((prev) => ({
+        ...prev,
+        [cups]: {
+          cups,
+          inspectionDates: [],
+          loading: false,
+          error: errorMsg,
+        },
+      }))
+
+      console.error(err)
+      return null
+    }
+  }
+
+  // Añadir este nuevo efecto después de los efectos existentes
+  // Efecto para cargar los datos de inspección cuando se cargan los contratos
+  useEffect(() => {
+    if (
+      secondApiStatus === 200 &&
+      contractsData &&
+      contractsData.value &&
+      contractsData.value.contracts &&
+      Array.isArray(contractsData.value.contracts) &&
+      contractsData.value.contracts.length > 0 &&
+      customerData?.value?.ic
+    ) {
+      // Para cada contrato, obtener los datos de inspección
+      contractsData.value.contracts.forEach((contract: any) => {
+        if (contract.cups) {
+          fetchInspectionData(customerData.value.ic, contract.cups)
+        }
+      })
+    }
+  }, [contractsData, secondApiStatus, customerData])
+
   // Función para manejar el clic en un elemento del historial
   const handleHistoryItemClick = (item: HistoryItem) => {
     // Establecer el modo de búsqueda y el valor de entrada
@@ -826,6 +989,18 @@ export default function CustomerData() {
       return <p className="text-amber-600">No se encontraron contratos para este cliente.</p>
     }
 
+    // Añadir esta función después de la función formatHistoryTimestamp
+    // Función para formatear la fecha de inspección desde formato AAAAMMDD a AAAA/MM/DD
+    const formatInspectionDate = (dateString: string): string => {
+      if (!dateString || dateString.length !== 8) return "No disponible"
+
+      const year = dateString.substring(0, 4)
+      const month = dateString.substring(4, 6)
+      const day = dateString.substring(6, 8)
+
+      return `${year}/${month}/${day}`
+    }
+
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
@@ -926,6 +1101,33 @@ export default function CustomerData() {
                       <div>
                         <p className="text-xs text-gray-500">Dirección de suministro</p>
                         <p className="font-medium">{formattedAddress}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-gray-500">Inspecciones realizadas</p>
+                        {inspectionsData[contract.cups] ? (
+                          inspectionsData[contract.cups].loading ? (
+                            <div className="flex items-center">
+                              <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                              <span className="text-sm">Cargando...</span>
+                            </div>
+                          ) : inspectionsData[contract.cups].error ? (
+                            <p className="text-sm text-red-500">Error al cargar datos</p>
+                          ) : inspectionsData[contract.cups].inspectionDates.length > 0 ? (
+                            <div className="max-h-24 overflow-y-auto pr-1">
+                              {inspectionsData[contract.cups].inspectionDates.map((date, idx) => (
+                                <p key={idx} className={`text-sm ${idx === 0 ? "font-medium" : "text-gray-500"}`}>
+                                  {formatInspectionDate(date)}{" "}
+                                  {idx === 0 && <span className="text-xs text-green-600">(Última)</span>}
+                                </p>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-amber-600">Sin inspecciones registradas</p>
+                          )
+                        ) : (
+                          <p className="text-sm text-gray-400">Consultando...</p>
+                        )}
                       </div>
 
                       <div className="flex space-x-4">
