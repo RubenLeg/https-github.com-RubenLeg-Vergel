@@ -91,17 +91,25 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
             )}
           </div>
 
-          <CardFooter className="px-0 pt-4">
-            <Button type="submit" className="w-full bg-nortegas-blue hover:bg-nortegas-blue/90" disabled={loading}>
+          <CardFooter className="px-0 pt-4 flex flex-col gap-2">
+            <Button
+              type="submit"
+              className="w-full bg-nortegas-blue hover:bg-nortegas-blue/90 text-white font-medium py-2 h-auto text-base shadow-md transition-all duration-200 hover:shadow-lg"
+              disabled={loading}
+            >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Verificando...
                 </>
               ) : (
-                "Acceder"
+                <>
+                  <KeyIcon className="mr-2 h-5 w-5" />
+                  Acceder
+                </>
               )}
             </Button>
+            <div className="text-center text-xs text-gray-500 mt-1">Pulse el botón o presione Enter para continuar</div>
           </CardFooter>
         </form>
       </CardContent>
