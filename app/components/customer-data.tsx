@@ -46,6 +46,7 @@ type HistoryItem = {
   ic: string
   cif: string
   businessName: string
+  lastName1?: string // Añadir el campo lastName1 como opcional
   searchMode: SearchMode
   searchValue: string
   timestamp: number
@@ -645,6 +646,7 @@ export default function CustomerData() {
             ic: result.value.ic,
             cif: result.value.cif || result.value.nif || "N/A",
             businessName: result.value.businessName || "N/A",
+            lastName1: result.value.lastName1 || "", // Añadir el apellido
             searchMode: mode,
             searchValue: standardizedInput,
             timestamp: Date.now(),
@@ -1125,7 +1127,7 @@ export default function CustomerData() {
                               <span className="text-xs text-gray-400">{formatHistoryTimestamp(item.timestamp)}</span>
                             </div>
                             <div className="text-xs font-medium truncate">
-                              {item.ic} - {item.cif} - {item.businessName}
+                              {item.ic} - {item.cif} - {item.businessName} {item.lastName1 ? item.lastName1 : ""}
                             </div>
                           </div>
                         ))}
