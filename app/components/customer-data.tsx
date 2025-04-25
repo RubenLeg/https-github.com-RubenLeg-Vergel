@@ -51,6 +51,11 @@ type HistoryItem = {
   timestamp: number
 }
 
+// Añadir después de las definiciones de tipos, antes del componente CustomerData
+// Constantes para el almacenamiento del historial
+const HISTORY_STORAGE_KEY = "nortegas_search_history"
+const MAX_HISTORY_ITEMS = 10
+
 // Añadir el estado para los datos de consumo
 export default function CustomerData() {
   const [inputValue, setInputValue] = useState<string>("72430367D")
@@ -89,7 +94,20 @@ export default function CustomerData() {
   const [ipCheckLoading, setIpCheckLoading] = useState<boolean>(true)
 
   // Estado para el historial de consultas
-  const [searchHistory, setSearchHistory] = useState<HistoryItem[]>([])
+  const [searchHistory, setSearchHistory] = useState<HistoryItem[]>(() => {
+    // Intentar cargar el historial desde localStorage al inicializar el componente
+    if (typeof window !== "undefined") {
+      try {
+        const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY)
+        if (savedHistory) {
+          return JSON.parse(savedHistory)
+        }
+      } catch (error) {
+        console.error("Error al cargar el historial desde localStorage:", error)
+      }
+    }
+    return []
+  })
 
   // Efecto para cambiar el valor por defecto según el modo de búsqueda
   useEffect(() => {
@@ -148,6 +166,17 @@ export default function CustomerData() {
   // Función para añadir un registro a la consola
   const addConsoleLog = (log: ConsoleLog) => {
     setConsoleLogs((prevLogs) => [...prevLogs, log])
+  }
+
+  // Función para guardar el historial en localStorage
+  const saveHistoryToStorage = (history: HistoryItem[]) => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history))
+      } catch (error) {
+        console.error("Error al guardar el historial en localStorage:", error)
+      }
+    }
   }
 
   // Función para formatear la fecha actual en formato AAAAMMDD
@@ -626,15 +655,25 @@ export default function CustomerData() {
             // Verificar si ya existe un elemento con el mismo IC
             const existingIndex = prevHistory.findIndex((item) => item.ic === newHistoryItem.ic)
 
+            let updatedHistory: HistoryItem[]
+
             if (existingIndex >= 0) {
               // Si existe, crear un nuevo array con el elemento actualizado
-              const updatedHistory = [...prevHistory]
+              updatedHistory = [...prevHistory]
               updatedHistory[existingIndex] = newHistoryItem
-              return updatedHistory
             } else {
               // Si no existe, añadir al inicio del array
-              return [newHistoryItem, ...prevHistory]
+              updatedHistory = [newHistoryItem, ...prevHistory]
+              // Limitar a MAX_HISTORY_ITEMS elementos
+              if (updatedHistory.length > MAX_HISTORY_ITEMS) {
+                updatedHistory = updatedHistory.slice(0, MAX_HISTORY_ITEMS)
+              }
             }
+
+            // Guardar en localStorage
+            saveHistoryToStorage(updatedHistory)
+
+            return updatedHistory
           })
         }
 
@@ -1050,17 +1089,18 @@ export default function CustomerData() {
                       <Clock className="h-3 w-3 mr-1" />
                       <span className="text-xs font-medium">Historial de consultas</span>
                     </div>
-                    {searchHistory.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 text-white hover:bg-[#00a0df]/20 p-0 px-1"
-                        onClick={() => setSearchHistory([])}
-                      >
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        <span className="text-xs">Limpiar</span>
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 text-white hover:bg-[#00a0df]/20 p-0 px-1"
+                      onClick={() => {
+                        setSearchHistory([])
+                        saveHistoryToStorage([])
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      <span className="text-xs">Limpiar</span>
+                    </Button>
                   </div>
 
                   <ScrollArea className="h-[150px] p-2">
