@@ -1,16 +1,14 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { EyeIcon, EyeOffIcon, KeyIcon, Loader2 } from "lucide-react"
-import { authService } from "@/app/services/auth-service"
 
-// Componente para el formulario de autenticación
+// Componente para el formulario de autenticación simplificado
 export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -21,7 +19,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
     e.preventDefault()
 
     if (!password.trim()) {
-      setError("Por favor, introduce la contraseña")
+      setError("Por favor, introduce la clave de acceso")
       return
     }
 
@@ -29,26 +27,25 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
     setError(null)
 
     try {
-      // Guardar las credenciales en memoria
-      authService.setCredentials(password)
-
-      // Verificar si las credenciales son válidas haciendo una llamada de prueba
-      const authToken = authService.getBasicAuthToken()
+      // Verificar si la clave es correcta
       const response = await fetch("/api/verify-auth", {
+        method: "POST",
         headers: {
-          Authorization: `Basic ${authToken}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ password }),
       })
 
       if (response.ok) {
+        // Guardar en localStorage que el usuario está autenticado
+        localStorage.setItem("isAuthenticated", "true")
         onAuthenticated()
       } else {
         const data = await response.json()
-        setError(data.message || "Credenciales inválidas")
-        authService.clearCredentials()
+        setError(data.message || "Clave de acceso incorrecta")
       }
     } catch (err) {
-      setError("Error al verificar las credenciales")
+      setError("Error al verificar la clave de acceso")
       console.error(err)
     } finally {
       setLoading(false)
@@ -57,21 +54,16 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="bg-nortegas-dark-blue text-white">
-        <CardTitle className="flex items-center">
+      <CardHeader className="bg-nortegas-dark-blue text-white py-3">
+        <CardTitle className="flex items-center text-lg">
           <KeyIcon className="mr-2 h-5 w-5" />
-          Autenticación requerida
+          Acceso restringido
         </CardTitle>
         <CardDescription className="text-gray-200">Introduzca la clave de acceso para continuar</CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="pt-4">
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Usuario</Label>
-              <Input id="username" value="RBTMuleApi_ADCDes" disabled className="bg-gray-100" />
-            </div>
-
+          <div className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="password">Clave de acceso</Label>
               <div className="relative">
@@ -82,6 +74,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
                   onChange={(e) => setPassword(e.target.value)}
                   className="pr-10"
                   placeholder="Introduzca la clave de acceso"
+                  autoFocus
                 />
                 <button
                   type="button"
@@ -94,11 +87,11 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated: () => v
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">{error}</div>
+              <div className="p-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">{error}</div>
             )}
           </div>
 
-          <CardFooter className="px-0 pt-6">
+          <CardFooter className="px-0 pt-4">
             <Button type="submit" className="w-full bg-nortegas-blue hover:bg-nortegas-blue/90" disabled={loading}>
               {loading ? (
                 <>
