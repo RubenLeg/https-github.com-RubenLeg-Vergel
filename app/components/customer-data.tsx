@@ -100,6 +100,9 @@ export default function CustomerData() {
   // Añadir este nuevo estado después de los estados existentes en el componente CustomerData
   const [inspectionsData, setInspectionsData] = useState<Record<string, InspectionData>>({})
 
+  // Estado para almacenar las respuestas JSON completas de inspecciones por CUPS
+  const [inspectionsRawData, setInspectionsRawData] = useState<Record<string, any>>({})
+
   // Estado para la pestaña activa
   const [activeTab, setActiveTab] = useState<ActiveTab>("consums")
 
@@ -651,6 +654,12 @@ export default function CustomerData() {
           },
         }))
 
+        // Guardar la respuesta JSON completa
+        setInspectionsRawData((prev) => ({
+          ...prev,
+          [cups]: result,
+        }))
+
         return inspectionDates
       } else {
         const errorMsg = `Error: ${result.error || "Desconocido"} ${result.details ? `- ${result.details}` : ""}`
@@ -1160,12 +1169,29 @@ export default function CustomerData() {
         </div>
 
         <div className="pt-3 border-t border-gray-200">
-          <details className="text-xs">
-            <summary className="cursor-pointer text-[#00a0df] hover:underline">Ver respuesta JSON completa</summary>
-            <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
-              {JSON.stringify(data, null, 2)}
-            </pre>
-          </details>
+          <div className="flex flex-col space-y-2">
+            <details className="text-xs">
+              <summary className="cursor-pointer text-[#00a0df] hover:underline">
+                Ver respuesta JSON completa (contratos)
+              </summary>
+              <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </details>
+
+            {data.value.contracts.map((contract: any, idx: number) =>
+              contract.cups && inspectionsRawData[contract.cups] ? (
+                <details key={`inspection-json-${idx}`} className="text-xs">
+                  <summary className="cursor-pointer text-[#00a0df] hover:underline">
+                    Ver respuesta JSON de inspecciones (CUPS: {contract.cups.substring(0, 10)}...)
+                  </summary>
+                  <pre className="mt-2 overflow-auto max-h-[200px] p-2 bg-gray-50 rounded text-xs">
+                    {JSON.stringify(inspectionsRawData[contract.cups], null, 2)}
+                  </pre>
+                </details>
+              ) : null,
+            )}
+          </div>
         </div>
       </div>
     )
